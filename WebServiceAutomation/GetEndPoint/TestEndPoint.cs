@@ -3,9 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
+using static System.Net.WebRequestMethods;
 
 namespace WebServiceAutomation.GetEndPoint
 {
@@ -31,19 +33,37 @@ namespace WebServiceAutomation.GetEndPoint
             HttpStatusCode statusCode = responseMessage.StatusCode;
             output.WriteLine($"Status Code =>  {statusCode.ToString()}");
             output.WriteLine($"Status Code =>  {(int)statusCode}");
+
+            // Response data
+            HttpContent responseContent = responseMessage.Content;
+            Task<string> responseData = responseContent.ReadAsStringAsync();
+            string data = responseData.Result;
+            output.WriteLine(data);
+
             // Close the connection
             client.Dispose();
 
         }
 
         [Fact]
-        public void TestGetAppEndPointwithURL()
+        public void TestGetAppEndPointwithURI()
         {
             //Step 1. To create the http client
             HttpClient client = new HttpClient();
             //step 2 & 3. Create the request and execute it
             Uri uri = new Uri(geturl);
-            client.GetAsync(uri);
+            Task<HttpResponseMessage> httpResponse = client.GetAsync(uri);
+            HttpResponseMessage responseMessage = httpResponse.Result;
+            output.WriteLine(responseMessage.ToString());
+            HttpStatusCode statusCode = responseMessage.StatusCode;
+            output.WriteLine($"Status Code =>  {statusCode.ToString()}");
+            output.WriteLine($"Status Code =>  {(int)statusCode}");
+
+            // Response data
+            HttpContent responseContent = responseMessage.Content;
+            Task<string> responseData = responseContent.ReadAsStringAsync();
+            string data = responseData.Result;
+            output.WriteLine(data);
 
             // Close the connection
             client.Dispose();
@@ -51,7 +71,7 @@ namespace WebServiceAutomation.GetEndPoint
         }
 
         [Fact]
-        public void TestGetAppEndPointwithInvalidURL()
+        public void TestGetAppEndPointwithInvalidURI()
         {
             //Step 1. To create the http client
             HttpClient client = new HttpClient();
@@ -63,9 +83,92 @@ namespace WebServiceAutomation.GetEndPoint
             HttpStatusCode statusCode = responseMessage.StatusCode;
             output.WriteLine($"Status Code =>  {statusCode.ToString()}");
             output.WriteLine($"Status Code =>  {(int)statusCode}");
+
+            // Response data
+            HttpContent responseContent = responseMessage.Content;
+            Task<string> responseData = responseContent.ReadAsStringAsync();
+            string data = responseData.Result;
+            output.WriteLine(data);
+
             // Close the connection
             client.Dispose();
 
+        }
+
+        [Fact]
+        public void TestGetAppEndPointInJsonFormat()
+        {
+            HttpClient client = new HttpClient();
+            HttpRequestHeaders requestHeaders = client.DefaultRequestHeaders;
+            requestHeaders.Add("Accept", "application/json");
+
+            Uri uri = new Uri(geturl);
+            Task<HttpResponseMessage> httpResponse = client.GetAsync(uri);
+            HttpResponseMessage responseMessage = httpResponse.Result;
+            output.WriteLine(responseMessage.ToString());
+            HttpStatusCode statusCode = responseMessage.StatusCode;
+            output.WriteLine($"Status Code =>  {statusCode.ToString()}");
+            output.WriteLine($"Status Code =>  {(int)statusCode}");
+
+            // Response data
+            HttpContent responseContent = responseMessage.Content;
+            Task<string> responseData = responseContent.ReadAsStringAsync();
+            string data = responseData.Result;
+            output.WriteLine(data);
+
+            // Close the connection
+            client.Dispose();
+        }
+
+        [Fact]
+        public void TestGetAppEndPointInXMLFormat()
+        {
+            HttpClient client = new HttpClient();
+            HttpRequestHeaders requestHeaders = client.DefaultRequestHeaders;
+            requestHeaders.Add("Accept", "application/xml");
+
+            Uri uri = new Uri(geturl);
+            Task<HttpResponseMessage> httpResponse = client.GetAsync(uri);
+            HttpResponseMessage responseMessage = httpResponse.Result;
+            output.WriteLine(responseMessage.ToString());
+            HttpStatusCode statusCode = responseMessage.StatusCode;
+            output.WriteLine($"Status Code =>  {statusCode.ToString()}");
+            output.WriteLine($"Status Code =>  {(int)statusCode}");
+
+            // Response data
+            HttpContent responseContent = responseMessage.Content;
+            Task<string> responseData = responseContent.ReadAsStringAsync();
+            string data = responseData.Result;
+            output.WriteLine(data);
+
+            // Close the connection
+            client.Dispose();
+        }
+
+        [Fact]
+        public void TestGetAppEndPointInXMLFormatUsingAccrptHeader()
+        {
+            HttpClient client = new HttpClient();
+            HttpRequestHeaders requestHeaders = client.DefaultRequestHeaders;
+            requestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json")); 
+            //requestHeaders.Add("Accept", "application/xml");
+
+            Uri uri = new Uri(geturl);
+            Task<HttpResponseMessage> httpResponse = client.GetAsync(uri);
+            HttpResponseMessage responseMessage = httpResponse.Result;
+            output.WriteLine(responseMessage.ToString());
+            HttpStatusCode statusCode = responseMessage.StatusCode;
+            output.WriteLine($"Status Code =>  {statusCode.ToString()}");
+            output.WriteLine($"Status Code =>  {(int)statusCode}");
+
+            // Response data
+            HttpContent responseContent = responseMessage.Content;
+            Task<string> responseData = responseContent.ReadAsStringAsync();
+            string data = responseData.Result;
+            output.WriteLine(data);
+
+            // Close the connection
+            client.Dispose();
         }
     }
 }
