@@ -1,0 +1,28 @@
+version: '3.4'
+
+services:
+  frontend:
+    image: ${DOCKER_REGISTRY-}frontend
+    container_name: frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "5903:443"
+      - "5900:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_URLS: "http://+;https://+"
+      ASPNETCORE_HTTPS_PORT: "5903"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "pa55w0rd!"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/root/.aspnet/https/frontend.pfx" 
+      backendUrl: "http://backend"
+    volumes:
+      #- ${APPDATA}\Microsoft\UserSecrets\:/root/.microsoft/usersecrets
+      - ${USERPROFILE}\.aspnet\https:/root/.aspnet/https/
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    external: true

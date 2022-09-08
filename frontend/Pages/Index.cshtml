@@ -1,0 +1,36 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+</div>
+
+<div style="color: #D8000C; background-color: #FFBABA">
+    @Model.ErrorMessage
+    @Model.getpath
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ticker</th>
+            <th>Company Name</th>
+            <th>Industry</th>
+            <th>Market Cap</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var stock in @Model.stocks)
+        {
+            <tr>
+                <td>@stock.Ticker</td>
+                <td>@stock.CompanyName</td>
+                <td>$@stock.Industry</td>
+                <td>@stock.MarketCap</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,40 @@
+version: '3.4'
+
+services:
+  backend:
+    image: ${DOCKER_REGISTRY-}backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      #- ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+;https://+
+      #- ASPNETCORE_URLS=http://+
+      - ASPNETCORE_HTTPS_PORT=5803
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=pa55w0rd!
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/root/.aspnet/https/backend.pfx
+    ports: 
+      - "5803:443"
+      - "5800:80"
+    volumes:
+      #- ${APPDATA}\Microsoft\UserSecrets\:/root/.microsoft/usersecrets
+      - ${USERPROFILE}\.aspnet\https\:/root/.aspnet/https/ 
+
+  frontend:
+    image: ${DOCKER_REGISTRY-}frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "0.0.0.0:5903:443"
+      - "0.0.0.0:5900:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_URLS: "http://+;https://+"
+      ASPNETCORE_HTTPS_PORT: "5903"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "pa55w0rd!"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/root/.aspnet/https/frontend.pfx" 
+      backendUrl: "http://backend"
+    volumes:
+      #- ${APPDATA}\Microsoft\UserSecrets\:/root/.microsoft/usersecrets
+      - ${USERPROFILE}\.aspnet\https:/root/.aspnet/https/
