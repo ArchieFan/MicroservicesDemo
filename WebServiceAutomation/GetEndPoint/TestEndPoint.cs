@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.Utilities;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using WebServiceAutomation.Models;
 using Xunit.Abstractions;
 using static System.Net.WebRequestMethods;
@@ -230,6 +232,90 @@ namespace WebServiceAutomation.GetEndPoint
                 }
             }
         }
-    
+
+        [Fact]
+        public void TestDeserilizationOfJsonResponse()
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, geturl))
+                {
+                    httpRequestMessage.RequestUri = new Uri(geturl);
+                    httpRequestMessage.Method = HttpMethod.Get;
+                    httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                    Task<HttpResponseMessage> httpResponse = client.SendAsync(httpRequestMessage);
+
+                    using (HttpResponseMessage responseMessage = httpResponse.Result)
+                    {
+                        //output.WriteLine(responseMessage.ToString());
+                        HttpStatusCode statusCode = responseMessage.StatusCode;
+                        //output.WriteLine($"Status Code =>  {statusCode.ToString()}");
+                        //output.WriteLine($"Status Code =>  {(int)statusCode}");
+
+                        // Response data
+                        HttpContent responseContent = responseMessage.Content;
+                        Task<string> responseData = responseContent.ReadAsStringAsync();
+                        string data = responseData.Result;
+                        //output.WriteLine(data);
+
+                        RestResponse restResponse = new RestResponse((int)statusCode, responseData.Result);
+
+                        List<Stock> stockList = JsonConvert.DeserializeObject<List<Stock>>(data);
+                        foreach (var stock in stockList)
+                        {
+                            output.WriteLine(stock.ticker);
+                        }
+                        
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void TestDeserilizationOfXMLResponse()
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, geturl))
+                {
+                    httpRequestMessage.RequestUri = new Uri(geturl);
+                    httpRequestMessage.Method = HttpMethod.Get;
+                    httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xml"));
+
+                    Task<HttpResponseMessage> httpResponse = client.SendAsync(httpRequestMessage);
+
+                    using (HttpResponseMessage responseMessage = httpResponse.Result)
+                    {
+                        //output.WriteLine(responseMessage.ToString());
+                        HttpStatusCode statusCode = responseMessage.StatusCode;
+                        //output.WriteLine($"Status Code =>  {statusCode.ToString()}");
+                        //output.WriteLine($"Status Code =>  {(int)statusCode}");
+
+                        // Response data
+                        HttpContent responseContent = responseMessage.Content;
+                        Task<string> responseData = responseContent.ReadAsStringAsync();
+                        string data = responseData.Result;
+                        //output.WriteLine(data);
+
+                        RestResponse restResponse = new RestResponse((int)statusCode, responseData.Result);
+
+                        // Step 1 - Create the instance of XMLserializer class and pass the model type as an parameter to the constructor of the class
+                        XmlSerializer xmlSerializer = new XmlSerializer(typeof(XMLArrayOfStock));
+
+                        // Step 2 - Create the instance of TextReader to read the response content
+                        TextReader textReader = new StringReader(data);
+
+                        // Step 3 - Call the Deserialize() and pass the instance of text reader as an argument
+                        XMLArrayOfStock xmlData = (XMLArrayOfStock) xmlSerializer.Deserialize(textReader)!;
+                        foreach (var item in xmlData.XMLStock!)
+                        {
+                            output.WriteLine(item.Ticker);
+                        }
+                        
+                    }
+                }
+            }
+        }
     }
 }
